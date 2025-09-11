@@ -60,7 +60,6 @@ class ProjectController extends Controller
 
     public function update(Request $request, Project $project)
     {
-        $this->authorize('update', $project);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -69,7 +68,6 @@ class ProjectController extends Controller
 
         $project->update($validated);
 
-        return redirect()->route('projects.index')->with('success', 'Project updated!');
     }
 
     public function destroy(Project $project)

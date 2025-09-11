@@ -10,37 +10,40 @@ import {
 } from "@hello-pangea/dnd";
 import { EditIcon, TrashIcon } from "lucide-react";
 import TaskModal from "./TaskModal";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox"
+
 
 interface Props {
   projects: ProjectWithTasks[];
 }
 
 export default function TaskIndex({ projects: initialProjects }: Props) {
-const [projects, setProjects] = useState(
-  [...initialProjects].sort((a, b) => a.position - b.position)
-);
+  const [projects, setProjects] = useState(
+    [...initialProjects].sort((a, b) => a.position - b.position)
+  );
   const [addingTaskFor, setAddingTaskFor] = useState<number | null>(null);
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [addingProject, setAddingProject] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
   const [loading, setLoading] = useState(false);
   const [taskModalOpen, setTaskModalOpen] = useState(false);
-  const [selectedTask, setSelectedTask] = useState<{ id: number; title: string; description: string } | null>(null);
+  const [selectedTask, setSelectedTask] = useState<{ id: number; title: string; description: string, due_date: string } | null>(null);
 
-const handleEditTask = (task: { id: number; title: string; description: string }) => {
+const handleEditTask = (task: { id: number; title: string; description: string; due_date: string }) => {
   setSelectedTask(task);
   setTaskModalOpen(true);
 };
 
-const handleSaveTask = (taskId: number, newTitle: string, newDescription: string) => {
-  router.put(route("tasks.update", taskId), { title: newTitle, description: newDescription }, {
+const handleSaveTask = (taskId: number, newTitle: string, newDescription: string, newdueDate: string) => {
+  router.put(route("tasks.update", taskId), { title: newTitle, description: newDescription, due_date: newdueDate}, {
     preserveScroll: true,
     onSuccess: () => {
       setProjects((prev) =>
         prev.map((proj) => ({
           ...proj,
           tasks: proj.tasks?.map((t) =>
-            t.id === taskId ? { ...t, title: newTitle, description: newDescription } : t
+            t.id === taskId ? { ...t, title: newTitle, description: newDescription, due_date: newdueDate } : t
           ),
         }))
       );
@@ -115,7 +118,6 @@ const handleDragEnd = (result: DropResult) => {
       {
         title: newTaskTitle,
         project_id: projectId,
-        status: "pending",
         priority: 1,
       },
       {
@@ -172,7 +174,15 @@ const handleAddProject = () => {
     setProjects(sorted);
   }, [initialProjects]);
 
-
+  const handleProjectNameChange = (projectId: number, newName: string) => {
+    setProjects((prev) =>
+      prev.map((proj) =>
+        proj.id === projectId ? { ...proj, name: newName } : proj
+      )
+    );
+    router.put(route("projects.update", projectId), { name: newName });
+  }
+  
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold mb-4">Projects</h1>
@@ -195,17 +205,36 @@ const handleAddProject = () => {
               <Card
                 ref={provided.innerRef}
                 {...provided.draggableProps}
+                {...provided.dragHandleProps}
                 className="min-w-[250px] max-w-[250px] max-h-[390px] flex-shrink-0 p-4 shadow-md flex flex-col"
               >
                 <div
                   {...provided.dragHandleProps}
                   className="flex items-center justify-between mb-2 cursor-grab"
                 >
-                  <h2 className="text-lg font-semibold truncate">{proj.name}</h2>
-                  <button onClick={() => handleDeleteProject(proj.id)}>
+                <input
+                    type="text"
+                    value={proj.name}
+                    className="text-lg font-bold bg-transparent border-0 focus:ring-0 focus:outline-none w-full"
+                    onChange={(e) => {
+                      const newName = e.target.value;
+                      setProjects((prev) =>
+                        prev.map((p) =>
+                          p.id === proj.id ? { ...p, name: newName } : p
+                        )
+                      );
+                    }}
+                    onBlur={() => handleProjectNameChange(proj.id, proj.name)}
+                  />
+                 
+                  <button
+                    className="cursor-pointer"
+                   onClick={() => handleDeleteProject(proj.id)}
+                   >
                     <TrashIcon className="w-6 h-6 text-gray-500 hover:text-red-600" />
                   </button>
                 </div>
+                
 
                 <Droppable
                   droppableId={`project-${proj.id}-tasks`}
@@ -215,7 +244,7 @@ const handleAddProject = () => {
                     <div
                       ref={provided.innerRef}
                       {...provided.droppableProps}
-                      className="flex-1 overflow-y-auto space-y-2"
+                      className="flex-1 overflow-y-auto space-y-2 scrollbar-hover"
                     >
                       {proj.tasks?.map((task, taskIndex) => (
                         <Draggable
@@ -224,25 +253,59 @@ const handleAddProject = () => {
                           index={taskIndex}
                         >
                           {(provided) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className="p-2 bg-gray-700 rounded shadow-sm"
-                            >
-                              <div className="flex items-center justify-between mb-2 cursor-grab">
-                              <p className="text-sm font-semibold">
-                                {task.title}
-                              </p>
-                            <button onClick={() => handleEditTask(task)}>
-                              <EditIcon className="w-4 h-4 text-gray-400 hover:text-white mr-2" />
-                            </button>
-                              </div>
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            onClick={() => handleEditTask(task)}
+                            className="p-3 bg-gray-700 rounded shadow-sm w-50 text-left hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer group"
+                            role="button"
+                            tabIndex={0}
+                          >
+                            <div className="flex items-center justify-between mb-2 cursor-grab">
+                              <Checkbox
+                                  checked={task.status === "completed"}
+                                  onCheckedChange={(checked) => {
+                                    router.put(route("tasks.update", task.id), {
+                                      ...task,
+                                      status: checked ? "completed" : "incomplete",
+                                    });
 
-                              <p className="text-xs text-gray-300">
-                                Status: {task.status} • Priority: {task.priority}
-                              </p>
+                                    setProjects((prev) =>
+                                      prev.map((proj) => ({
+                                        ...proj,
+                                        tasks: proj.tasks?.map((t) =>
+                                          t.id === task.id
+                                            ? { ...t, status: checked ? "completed" : "incomplete" }
+                                            : t
+                                        ),
+                                      }))
+                                    );
+                                  }}
+                                />
+                                <p
+                                  className={`text-sm font-semibold ${
+                                    task.status === "completed" ? "line-through text-gray-400" : ""
+                                  }`}
+                                >
+                                  {task.title}
+                                </p>
+
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditTask(task);
+                                }}
+                                className="cursor-pointer"
+                              >
+                                <EditIcon className="w-4 h-4 text-gray-400 hover:text-white mr-2 hidden group-hover:inline" />
+                              </button>
                             </div>
+
+                            <p className="text-xs text-gray-300 hidden group-hover:inline">
+                              Due: {task.due_date ? new Date(task.due_date).toLocaleDateString() : 'No date'}
+                            </p>
+                          </div>
                           )}
                         </Draggable>
                       ))}
@@ -261,14 +324,14 @@ const handleAddProject = () => {
                         className="w-full rounded border px-2 py-1 text-sm"
                       />
                       <div className="flex gap-2">
-                        <button
+                        <Button
                           onClick={() => handleAddTask(proj.id)}
                           disabled={loading}
                           className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
                         >
                           {loading ? "Adding..." : "Add Task"}
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           disabled={loading}
                           onClick={() => {
                             setAddingTaskFor(null);
@@ -277,16 +340,16 @@ const handleAddProject = () => {
                           className="px-3 py-1 bg-gray-400 text-white text-sm rounded hover:bg-gray-500"
                         >
                           Cancel
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   ) : (
-                    <button
+                    <Button
                       onClick={() => setAddingTaskFor(proj.id)}
-                      className="w-full text-left text-blue-600 text-sm font-bold"
+                      className="w-full text-left text-blue-600 text-sm font-bold bg-gray-800 hover:bg-gray-700"
                     >
                       + Add Task
-                    </button>
+                    </Button>
                   )}
                 </div>
               </Card>

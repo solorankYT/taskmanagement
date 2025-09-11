@@ -74,10 +74,10 @@ export default function PomodoroTimer() {
 
       <CardContent className="space-y-6">
         <Tabs value={mode} onValueChange={(value) => setMode(value as keyof typeof DURATIONS)}>
-          <TabsList className="grid grid-cols-3 mb-4">
-            <TabsTrigger value="pomodoro">Pomodoro</TabsTrigger>
-            <TabsTrigger value="short-break">Short Break</TabsTrigger>
-            <TabsTrigger value="long-break">Long Break</TabsTrigger>
+          <TabsList className="grid grid-cols-3 mb-4 ">
+            <TabsTrigger value="pomodoro" className="cursor-pointer">Pomodoro</TabsTrigger>
+            <TabsTrigger value="short-break" className="cursor-pointer">Short Break</TabsTrigger>
+            <TabsTrigger value="long-break" className="cursor-pointer">Long Break</TabsTrigger>
           </TabsList>
 
           <TabsContent value={mode}>

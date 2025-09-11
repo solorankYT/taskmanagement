@@ -53,7 +53,6 @@ class PomodoroController extends Controller
 
     public function update(Request $request, Pomodoro $pomodoro)
     {
-        $this->authorize('update', $pomodoro);
 
         $validated = $request->validate([
             'task_id' => 'required|exists:tasks,id',
