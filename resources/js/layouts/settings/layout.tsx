@@ -7,21 +7,13 @@ import { Link } from '@inertiajs/react';
 import { type PropsWithChildren } from 'react';
 
 const sidebarNavItems: NavItem[] = [
-    {
-        title: 'Profile',
-        href: '/settings/profile',
-        icon: null,
-    },
+
     {
         title: 'Password',
         href: '/settings/password',
         icon: null,
     },
-    {
-        title: 'Appearance',
-        href: '/settings/appearance',
-        icon: null,
-    },
+
 ];
 
 export default function SettingsLayout({ children }: PropsWithChildren) {

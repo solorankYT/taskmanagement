@@ -12,6 +12,8 @@ import { EditIcon, TrashIcon } from "lucide-react";
 import TaskModal from "./TaskModal";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox"
+import { Badge } from "@/components/ui/badge";
+import { isBefore, isToday, isTomorrow } from "date-fns";
 
 
 interface Props {
@@ -57,7 +59,6 @@ const handleDragEnd = (result: DropResult) => {
   const { source, destination, type } = result;
 
   if (type === "PROJECT") {
-    // Reorder projects
     const reordered = Array.from(projects);
     const [moved] = reordered.splice(source.index, 1);
     reordered.splice(destination.index, 0, moved);
@@ -92,7 +93,6 @@ const handleDragEnd = (result: DropResult) => {
         tasks: sourceTasks.map((t) => t.id),
       });
     } else {
-      // Move to another project
       const destTasks = Array.from(projects[destProjIndex].tasks || []);
       destTasks.splice(destination.index, 0, movedTask);
 
@@ -182,16 +182,41 @@ const handleAddProject = () => {
     );
     router.put(route("projects.update", projectId), { name: newName });
   }
-  
-  return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Projects</h1>
 
+  const DueBadge: React.FC<{ dueDate: string; status: string }> = ({ dueDate, status }) => {
+    if (!dueDate) return null;
+
+    const date = new Date(dueDate);
+
+    if (isToday(date)) {
+      return (
+        <Badge
+          className={status === "completed" ? "bg-green-600 text-white" : "bg-gray-500 text-white"}
+        >
+          {status === "completed" ? "Completed Today" : "Due Today"}
+        </Badge>
+      );
+    }
+
+    if (isBefore(date, new Date())) {
+      return (
+      
+        <Badge
+          className={status === "completed" ? "bg-green-600 text-white" : "bg-red-600 text-white"}
+        >
+          {status === "completed" ? "Completed" : "Overdue"}
+        </Badge>
+      );
+    }
+  }
+
+  return (
+<div className="h-full w-full p-4">
   <DragDropContext onDragEnd={handleDragEnd}>
     <Droppable droppableId="projects" direction="horizontal" type="PROJECT">
     {(provided) => (
       <div
-        className="flex overflow-x-auto space-x-4 pb-2"
+        className="flex overflow-x-auto scrollbar-hover space-x-4 pb-2"
         {...provided.droppableProps}
         ref={provided.innerRef}
       >
@@ -206,7 +231,7 @@ const handleAddProject = () => {
                 ref={provided.innerRef}
                 {...provided.draggableProps}
                 {...provided.dragHandleProps}
-                className="min-w-[250px] max-w-[250px] max-h-[390px] flex-shrink-0 p-4 shadow-md flex flex-col"
+                className="min-w-[250px] max-w-[320px] min-h-[350px] max-h-[430px] flex-shrink-0 p-4 shadow-md flex flex-col"
               >
                 <div
                   {...provided.dragHandleProps}
@@ -258,11 +283,12 @@ const handleAddProject = () => {
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
                             onClick={() => handleEditTask(task)}
-                            className="p-3 bg-gray-700 rounded shadow-sm w-50 text-left hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer group"
+                            className="min-w-[250px] p-3 bg-gray-700 rounded shadow-sm w-50 text-left hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer group"
                             role="button"
                             tabIndex={0}
                           >
                             <div className="flex items-center justify-between mb-2 cursor-grab">
+                              <div className="flex items-center gap-2">
                               <Checkbox
                                   checked={task.status === "completed"}
                                   onCheckedChange={(checked) => {
@@ -282,6 +308,7 @@ const handleAddProject = () => {
                                       }))
                                     );
                                   }}
+                                  onClick={(e) => e.stopPropagation()}
                                 />
                                 <p
                                   className={`text-sm font-semibold ${
@@ -290,7 +317,7 @@ const handleAddProject = () => {
                                 >
                                   {task.title}
                                 </p>
-
+                              </div>
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -301,10 +328,17 @@ const handleAddProject = () => {
                                 <EditIcon className="w-4 h-4 text-gray-400 hover:text-white mr-2 hidden group-hover:inline" />
                               </button>
                             </div>
-
-                            <p className="text-xs text-gray-300 hidden group-hover:inline">
+                          {task.due_date && (
+                            <p className="text-xs text-gray-300 hidden group-hover:inline mr-2">
                               Due: {task.due_date ? new Date(task.due_date).toLocaleDateString() : 'No date'}
                             </p>
+                           )}
+                          {task.due_date && (
+                          <DueBadge 
+                          status ={task.status}
+                          dueDate={task.due_date}
+                          />
+                          )}
                           </div>
                           )}
                         </Draggable>
@@ -389,7 +423,7 @@ const handleAddProject = () => {
               ) : (
                 <Card
                   onClick={() => setAddingProject(true)}
-                  className="min-w-[250px] max-w-[250px] flex-shrink-0 p-4 flex items-center justify-center cursor-pointer hover:bg-gray-100"
+                  className="min-w-[250px] max-w-[250px] flex-shrink-0 p-4 flex items-center justify-center cursor-pointer hover:bg-gray-900"
                 >
                   <span className="text-blue-600 font-bold">+ Create List</span>
                 </Card>

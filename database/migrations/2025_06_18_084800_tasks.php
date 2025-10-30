@@ -18,7 +18,7 @@ return new class extends Migration
         $table->string('title');
         $table->text('description')->nullable();
         $table->enum('status', ['incomplete', 'completed'])->default('incomplete');
-        $table->unsignedTinyInteger('priority')->default(0); // 0 = low, 1 = medium, 2 = high
+        $table->unsignedTinyInteger('priority')->default(0);
         $table->date('due_date')->nullable();
         $table->unsignedInteger('position')->default(0);
         $table->unsignedInteger('estimated_pomodoros')->default(0);

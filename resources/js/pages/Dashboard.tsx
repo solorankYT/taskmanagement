@@ -45,13 +45,13 @@ export default function Dashboard({ projects }: DashboardProps) {
         </div>
         
         <div className="block md:hidden flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-          <div className="flex h-full min-h-[300px] bg-white dark:bg-black overflow-auto">
+          <div className="flex h-full min-h-[300px] bg-white dark:bg-black overflow-hidden">
             <TaskIndex projects={projects} />
           </div>
         </div>
 
         <div className="hidden md:block flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-          <div className="flex h-full min-h-[300px] bg-white dark:bg-black overflow-auto">
+          <div className="flex h-full min-h-[300px] bg-white dark:bg-black overflow-hidden ">
             <TaskIndex projects={projects} />
           </div>
         </div>

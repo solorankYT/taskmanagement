@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -10,6 +11,12 @@ use App\Http\Controllers\PomodoroController;
 Route::get('/', function () {
     return Inertia::render('welcome');
 })->name('home');
+
+Route::prefix('auth')->group(function () {
+    Route::get('google', [GoogleController::class, 'redirect'])->name('google.redirect');
+    Route::get('google/callback', [GoogleController::class, 'callback'])->name('google.callback');
+});
+
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -23,6 +30,7 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::resource('pomodoros', PomodoroController::class);
 });
+
 
 
 require __DIR__.'/settings.php';

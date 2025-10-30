@@ -4,6 +4,7 @@ import { set } from "date-fns";
 import { TrashIcon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { router } from "@inertiajs/react";
+import { Checkbox } from "@radix-ui/react-checkbox";
 
 interface TaskModalProps {
   open: boolean;
@@ -18,7 +19,7 @@ export default function TaskModal({ open, onOpenChange, task, onSave }: TaskModa
   const [dueDate, setDueDate] = useState("");
 
   const handleDelete = (taskId: number) => {
-    if (!confirm("Are you sure you want to delete this project?")) return;
+    if (!confirm("Are you sure you want to delete this task?")) return;
 
     router.delete(route("tasks.destroy", taskId), {
       onSuccess: () => {
@@ -46,16 +47,17 @@ export default function TaskModal({ open, onOpenChange, task, onSave }: TaskModa
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/40" />
-        <Dialog.Content className="fixed top-1/2 left-1/2 w-106 -translate-x-1/2 -translate-y-1/2 rounded-lg bg-gray-800 p-6 shadow-lg">
+        <Dialog.Content className="fixed top-1/2 left-1/2 w-200 -translate-x-1/2 -translate-y-1/2 rounded-lg bg-gray-800 p-6 shadow-lg">
         <div className="flex justify-between items-center mb-4">
           <Dialog.Title className="text-lg font-bold mb-4">Edit Task</Dialog.Title>
           <Button 
-          className={"cursor-pointer p-2 rounded hover:text-red-600 transition-colors"}
+          className={"cursor-pointer p-2 rounded text-red-700 hover:text-red-600 transition-colors"}
           onClick={() => task && handleDelete(task.id)}
           ><TrashIcon /></Button>
         </div>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
+                
               <input
                 type="text"
                 id="task-title"

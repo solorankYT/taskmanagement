@@ -86,12 +86,6 @@ export default function Welcome() {
                   >
                     Already have an account?
                   </Link>
-                  <Link
-                    href="#"
-                    className="text-sm text-center text-muted-foreground hover:underline"
-                  >
-                    Learn more
-                  </Link>
                 </div>
               </div>
             </>

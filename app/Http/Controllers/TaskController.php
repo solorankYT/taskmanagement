@@ -70,7 +70,7 @@ class TaskController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'status' => 'in:pending,in_progress,completed',
+            'status' => 'in:incomplete,completed',
             'priority' => 'integer|between:0,2',
             'due_date' => 'nullable|date',
             'estimated_pomodoros' => 'nullable|integer|min:0',

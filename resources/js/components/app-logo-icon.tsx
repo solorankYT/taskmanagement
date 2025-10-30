@@ -1,13 +1,46 @@
-import { SVGAttributes } from 'react';
+import { SVGAttributes } from "react";
 
 export default function AppLogoIcon(props: SVGAttributes<SVGElement>) {
-    return (
-        <svg {...props} viewBox="0 0 40 42" xmlns="http://www.w3.org/2000/svg">
-            <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M17.2 5.63325L8.6 0.855469L0 5.63325V32.1434L16.2 41.1434L32.4 32.1434V23.699L40 19.4767V9.85547L31.4 5.07769L22.8 9.85547V18.2999L17.2 21.411V5.63325ZM38 18.2999L32.4 21.411V15.2545L38 12.1434V18.2999ZM36.9409 10.4439L31.4 13.5221L25.8591 10.4439L31.4 7.36561L36.9409 10.4439ZM24.8 18.2999V12.1434L30.4 15.2545V21.411L24.8 18.2999ZM23.8 20.0323L29.3409 23.1105L16.2 30.411L10.6591 27.3328L23.8 20.0323ZM7.6 27.9212L15.2 32.1434V38.2999L2 30.9666V7.92116L7.6 11.0323V27.9212ZM8.6 9.29991L3.05913 6.22165L8.6 3.14339L14.1409 6.22165L8.6 9.29991ZM30.4 24.8101L17.2 32.1434V38.2999L30.4 30.9666V24.8101ZM9.6 11.0323L15.2 7.92117V22.5221L9.6 25.6333V11.0323Z"
-            />
-        </svg>
-    );
+  return (
+    <svg
+      {...props}
+      viewBox="0 0 512 512"
+      xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-label="Task management logo"
+    >
+      {/* Outer rounded square */}
+      <path
+        fill="#0f172a"
+        d="M80 0H432A80 80 0 0 1 512 80V432A80 80 0 0 1 432 512H80A80 80 0 0 1 0 432V80A80 80 0 0 1 80 0Z"
+      />
+      {/* Green square */}
+      <path
+        fill="#10b981"
+        d="M116 80H236A36 36 0 0 1 272 116V236A36 36 0 0 1 236 272H116A36 36 0 0 1 80 236V116A36 36 0 0 1 116 80Z"
+      />
+      {/* Task lines */}
+      <path
+        fill="#ffffff"
+        d="M308 98H460A8 8 0 0 1 468 106V120A8 8 0 0 1 460 128H308A8 8 0 0 1 300 120V106A8 8 0 0 1 308 98Z"
+      />
+      <path
+        fill="#cbd5e1"
+        d="M308 146H448A8 8 0 0 1 456 154V162A8 8 0 0 1 448 170H308A8 8 0 0 1 300 162V154A8 8 0 0 1 308 146Z"
+      />
+      <path
+        fill="#cbd5e1"
+        d="M308 184H460A8 8 0 0 1 468 192V200A8 8 0 0 1 460 208H308A8 8 0 0 1 300 200V192A8 8 0 0 1 308 184Z"
+      />
+      {/* Checkmark */}
+      <path
+        d="M130 182 L166 218 L222 154"
+        fill="none"
+        stroke="#ffffff"
+        strokeWidth="18"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
 }

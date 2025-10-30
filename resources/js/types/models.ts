@@ -20,10 +20,10 @@ export interface Project {
 export interface Task {
   id: number;
   title: string;
-  description: string | null;
+  description: string;
   status: 'incomplete' | 'completed';
   priority: 0 | 1 | 2;
-  due_date: string | null;
+  due_date: string;
   estimated_pomodoros: number | null;
   completed_at: string | null;
   user_id: number;

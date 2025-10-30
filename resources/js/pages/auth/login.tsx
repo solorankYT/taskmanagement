@@ -42,6 +42,21 @@ export default function Login({ status, canResetPassword }: LoginProps) {
             <form className="flex flex-col gap-6" onSubmit={submit}>
                 <div className="grid gap-6">
                     <div className="grid gap-2">
+                    <a
+                        href={route('google.redirect')}
+                        className="inline-flex items-center bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700"
+                        >
+                        <img src="/google-icon-logo-svgrepo-com.svg" alt="Google" className="w-5 h-5 mr-2" />
+                        Sign in with Google
+                        </a>
+
+                    </div>
+
+                    <div className="text-center">
+                        OR
+                    </div>
+
+                    <div className="grid gap-2">
                         <Label htmlFor="email">Email address</Label>
                         <Input
                             id="email"
