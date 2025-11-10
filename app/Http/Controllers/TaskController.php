@@ -48,8 +48,6 @@ class TaskController extends Controller
     $validated['user_id'] = Auth::id();
 
     Task::create($validated);
-
-    return redirect()->route('dashboard')->with('success', 'Task created!');
 }
 
 
@@ -107,4 +105,6 @@ class TaskController extends Controller
             ]);
         }
     }
+
+    
 }

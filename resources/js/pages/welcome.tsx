@@ -1,9 +1,17 @@
 import PomodoroTimer from '@/components/PomodoroTimer';
 import { type SharedData } from '@/types';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, usePage, router } from '@inertiajs/react';
+import { useEffect } from 'react';
+
 
 export default function Welcome() {
   const { auth } = usePage<SharedData>().props;
+
+  useEffect(() => {
+    if (auth.user) {
+      router.visit(route('dashboard'));
+    }
+  }, [auth.user]);
 
   return (
     <>
@@ -16,33 +24,6 @@ export default function Welcome() {
       </Head>
 
       <div className="min-h-screen bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] dark:text-[#EDEDEC] p-6 lg:p-10 flex flex-col justify-between">
-        {/* Navigation */}
-        {/* <header className="flex justify-end gap-4 max-w-7xl mx-auto w-full">
-          {auth.user ? (
-            <Link
-              href={route('dashboard')}
-              className="rounded-md border px-5 py-2 text-sm font-medium hover:bg-neutral-100 dark:hover:bg-neutral-800 border-neutral-300 dark:border-neutral-600"
-            >
-              Dashboard
-            </Link>
-          ) : (
-            <>
-              <Link
-                href={route('login')}
-                className="rounded-md px-5 py-2 text-sm font-medium text-[#1b1b18] dark:text-[#EDEDEC] hover:underline"
-              >
-                Log in
-              </Link>
-              <Link
-                href={route('register')}
-                className="rounded-md border px-5 py-2 text-sm font-medium border-neutral-300 dark:border-neutral-600 hover:bg-neutral-100 dark:hover:bg-neutral-800"
-              >
-                Register
-              </Link>
-            </>
-          )}
-        </header> */}
-
         <main className="flex flex-col-reverse lg:flex-row max-w-7xl mx-auto w-full mt-10 lg:mt-20 gap-8">
           <div className="flex-1 bg-white dark:bg-[#161615] rounded-xl shadow-md p-6 lg:p-10">
             <PomodoroTimer />

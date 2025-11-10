@@ -7,10 +7,22 @@ export interface User {
   updated_at: string;
 }
 
+export interface Boards{
+  id:number;
+  user_id:number;
+  title: string;
+  description: string;
+  created_by_ai: boolean;
+  metadata: JSON;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Project {
   id: number;
   name: string;
   description: string | null;
+  board_id: number;
   user_id: number;
   position: number;
   created_at: string;
@@ -43,6 +55,10 @@ export interface Pomodoro {
   is_break: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface BoardWithProjects extends Boards {
+  projects?: ProjectWithTasks[];
 }
 
 export interface TaskWithProject extends Task {

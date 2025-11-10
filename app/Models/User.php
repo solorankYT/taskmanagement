@@ -65,4 +65,10 @@ public function pomodoros(): HasMany
     return $this->hasMany(Pomodoro::class);
 }
 
+public function boards(): HasMany
+{
+    return $this->hasMany(Board::class);
+}
+
+
 }

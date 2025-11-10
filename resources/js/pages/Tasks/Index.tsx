@@ -13,14 +13,15 @@ import TaskModal from "./TaskModal";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge";
-import { isBefore, isToday, isTomorrow } from "date-fns";
+import { isBefore, isToday } from "date-fns";
 
 
 interface Props {
+  boardId: number;
   projects: ProjectWithTasks[];
 }
 
-export default function TaskIndex({ projects: initialProjects }: Props) {
+export default function TaskIndex({boardId, projects: initialProjects }: Props) {
   const [projects, setProjects] = useState(
     [...initialProjects].sort((a, b) => a.position - b.position)
   );
@@ -146,21 +147,19 @@ const handleAddProject = () => {
   setLoading(true);
 
   router.post(
-    route("projects.store"),
+    route("projects.store", boardId),
     { name: newProjectName },
     {
-      onSuccess: (page) => {
-        const newProj = page.props.flash?.newProject;
-        if (newProj) {
-          setProjects((prev) => [...prev, newProj]);
-        }
+      onSuccess: () => {
         setNewProjectName("");
         setAddingProject(false);
         setLoading(false);
       },
+      onError: () => setLoading(false),
     }
   );
 };
+
 
 
   useEffect(() => {
@@ -193,7 +192,7 @@ const handleAddProject = () => {
         <Badge
           className={status === "completed" ? "bg-green-600 text-white" : "bg-gray-500 text-white"}
         >
-          {status === "completed" ? "Completed Today" : "Due Today"}
+          {status === "completed" ? "Completed" : "Due Today"}
         </Badge>
       );
     }
@@ -290,6 +289,7 @@ const handleAddProject = () => {
                             <div className="flex items-center justify-between mb-2 cursor-grab">
                               <div className="flex items-center gap-2">
                               <Checkbox
+                                  className="hover:cursor-pointer"
                                   checked={task.status === "completed"}
                                   onCheckedChange={(checked) => {
                                     router.put(route("tasks.update", task.id), {

@@ -27,26 +27,44 @@ class ProjectController extends Controller
         ]);
     }
 
+       public function taskindex()
+    {
+        $projects = Auth::user()
+            ->projects()
+            ->with(['tasks' => function ($q) {
+                $q->orderBy('position');
+            }])
+            ->orderBy('position')
+            ->get();
+
+        return Inertia::render('Tasks/TaskIndex', [
+            'projects' => $projects
+        ]);
+    }
+
 
     public function create()
     {
         return view('projects.create');
     }
 
-    public function store(Request $request)
+    public function store(Request $request, $boardId)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
         ]);
 
-        $lastPosition = Auth::user()->projects()->max('position');
+        $lastPosition = Project::where('board_id', $boardId)
+        ->max('position') ?? 0;
 
         $validated['position'] = $lastPosition + 1;
+        $validated['board_id'] = $boardId;
+        $validated['user_id'] = Auth::id();
 
-        Auth::user()->projects()->create($validated);
+        $project = Project::create($validated);
 
-        return redirect()->route('dashboard')->with('success', 'Project created!');
+        return back()->with('newProject', $project);
     }
 
 
@@ -67,7 +85,6 @@ class ProjectController extends Controller
         ]);
 
         $project->update($validated);
-
     }
 
     public function destroy(Project $project)

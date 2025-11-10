@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import CalendarTask from '@/components/Calendar';
-import PomodoroTimer from '@/components/PomodoroTimer';
 import { Card } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
@@ -29,11 +28,19 @@ export default function Dashboard({ projects }: DashboardProps) {
       <Head title="Dashboard" />
 
       <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 overflow-x-auto">
+  
+        <div className="hidden md:block flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
+          <div className="flex h-full min-h-[300px] bg-white dark:bg-black overflow-hidden ">
+            <TaskIndex projects={projects} />
+          </div>
+        </div>
 
-        <div className="hidden md:grid auto-rows-min gap-4 xl:grid-cols-3 md:grid-cols-1">
-          <Card className="flex items-center justify-center p-0 overflow-hidden aspect-video">
+
+        
+        <div className="hidden md:grid auto-rows-min gap-4 xl:grid-cols-2 md:grid-cols-1">
+          {/* <Card className="flex items-center justify-center p-0 overflow-hidden aspect-video">
             <PomodoroTimer />
-          </Card>
+          </Card> */}
 
           <Card className="flex items-center justify-center p-0 overflow-hidden aspect-video">
             <CalendarTask onDateSelect={setSelectedDate}/>
@@ -50,11 +57,7 @@ export default function Dashboard({ projects }: DashboardProps) {
           </div>
         </div>
 
-        <div className="hidden md:block flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-          <div className="flex h-full min-h-[300px] bg-white dark:bg-black overflow-hidden ">
-            <TaskIndex projects={projects} />
-          </div>
-        </div>
+        
       </div>
     </AppLayout>
   );
