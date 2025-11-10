@@ -60,21 +60,17 @@ class BoardController extends Controller
     ]);
 }
 
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Board $board)
-    {
-        //
-    }
-
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, Board $board)
     {
-        //
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string'
+        ]);
+
+        $board->update($validated);
     }
 
     /**

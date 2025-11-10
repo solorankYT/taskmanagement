@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import AppLayout from "@/layouts/app-layout";
-import { Link, router, usePage } from "@inertiajs/react";
+import { Link, router } from "@inertiajs/react";
 import { Boards } from "@/types/models";
-import { Delete, Edit, Folder, Trash } from "lucide-react";
+import {  Edit,  Trash } from "lucide-react";
 
 interface Props {
   boards: Boards[];
@@ -13,22 +12,53 @@ interface Props {
 export default function BoardIndex({ boards: initialBoards }: Props) {
   const [boards, setBoards] = useState(initialBoards);
   const [addBoard, setAddBoard] = useState(false);
-
+  const [openEditBoard, setOpenEditBoard] = useState(false);
   const [newBoard, setNewBoard] = useState({
     title: "",
     description: "",
     created_by_ai: false,
   });
 
+
+  const [editBoard, setEditBoard] = useState({
+    id: 0,
+    title: "",
+    description: "",
+  });
+
+
  const handleDeleteBoard = (id: number) => {
     if (!confirm("Are you sure you want to delete this board?")) return;
-
     router.delete(route("boards.destroy", id), {
       onSuccess: () => {
         setBoards((prev) => prev.filter((b) => b.id !== id));
       },
     });
   };
+
+  const handleEditClick = (board: Boards) => {
+  setEditBoard({ id: board.id, title: board.title, description: board.description });
+  setOpenEditBoard(true);
+};
+
+
+  const handleEditBoard = () => {
+  if (!editBoard.title.trim()) return;
+  router.put(route("boards.update", editBoard.id), {
+    title: editBoard.title,
+    description: editBoard.description,
+  }, {
+    onSuccess: () => {
+      setBoards((prev) =>
+        prev.map((b) =>
+          b.id === editBoard.id ? { ...b, title: editBoard.title, description: editBoard.description } : b
+        )
+      );
+      setOpenEditBoard(false);
+    },
+  });
+};
+
 
  const handleAddBoard = () => {
   if (!newBoard.title.trim()) return;
@@ -78,9 +108,14 @@ export default function BoardIndex({ boards: initialBoards }: Props) {
                 </Link>
 
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="icon">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => handleEditClick(board)}
+                  >
                     <Edit className="w-4 h-4" />
                   </Button>
+
                   <Button
                     variant="destructive"
                     size="icon"
@@ -105,6 +140,43 @@ export default function BoardIndex({ boards: initialBoards }: Props) {
 
   {/* Modal For Editing Board */}
 
+  {openEditBoard && (
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/85 backdrop-blur-xl"
+    onClick={() => setOpenEditBoard(false)}
+  >
+    <div
+      className="max-w-2xl w-full rounded-2xl p-10 bg-gradient-to-br from-black/60 to-gray-900/60 border border-gray-800/40 shadow-2xl flex flex-col items-center gap-6"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <input
+        type="text"
+        value={editBoard.title}
+        onChange={(e) =>
+          setEditBoard({ ...editBoard, title: e.target.value })
+        }
+        placeholder="Board name"
+        className="w-full rounded border px-2 py-1 text-sm"
+      />
+      <input
+        type="text"
+        value={editBoard.description}
+        onChange={(e) =>
+          setEditBoard({ ...editBoard, description: e.target.value })
+        }
+        placeholder="Description (optional)"
+        className="w-full rounded border px-2 py-1 text-sm"
+      />
+
+      <div className="flex gap-3 w-full justify-end">
+        <Button variant="secondary" onClick={() => setOpenEditBoard(false)}>
+          Cancel
+        </Button>
+        <Button onClick={handleEditBoard}>Save Changes</Button>
+      </div>
+    </div>
+  </div>
+)}
 
     
   {/* Modal for adding board */}

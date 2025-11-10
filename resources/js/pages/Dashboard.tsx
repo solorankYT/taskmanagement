@@ -29,11 +29,11 @@ export default function Dashboard({ projects }: DashboardProps) {
 
       <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4 overflow-x-auto">
   
-        <div className="hidden md:block flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
+        {/* <div className="hidden md:block flex-1 overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
           <div className="flex h-full min-h-[300px] bg-white dark:bg-black overflow-hidden ">
             <TaskIndex projects={projects} />
           </div>
-        </div>
+        </div> */}
 
 
         
