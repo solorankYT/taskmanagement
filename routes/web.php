@@ -36,6 +36,20 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/boards', [BoardController:: class, 'store']) -> name('boards.store');
     Route::put('/boards/{board}',[BoardController::class, 'update'])-> name('boards.update');
     Route::delete('/boards/{board}', [BoardController::class, 'destroy']) -> name('boards.destroy');
+
+
+    Route::get('/test-openai', function () {
+    try {
+        $response = \OpenAI\Laravel\Facades\OpenAI::chat()->create([
+            'model' => config('openai.model'),
+            'messages' => [['role'=>'user','content'=>'Say hello']],
+        ]);
+        dd($response->choices[0]->message->content);
+    } catch (\Exception $e) {
+        dd($e->getMessage());
+    }
+});
+
 });
 
 Route::middleware('auth')->group(function () {

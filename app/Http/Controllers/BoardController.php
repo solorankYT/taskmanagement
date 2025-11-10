@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Board;
+use App\Services\OpenAIService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -25,21 +26,81 @@ class BoardController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'title' => 'required|string|max:64',
-            'description' => 'nullable|string',
-            'created_by_ai' =>'boolean',
-        ]);
+public function store(Request $request, OpenAIService $openAI)
+{
+    $validated = $request->validate([
+        'title' => 'required|string|max:64',
+        'description' => 'nullable|string',
+        'created_by_ai' => 'boolean',
+        'metadata' => 'nullable|array', // contains AI instruction: ['instruction' => '...']
+    ]);
 
-        $validated['user_id'] = Auth::id();
+    $validated['user_id'] = Auth::id();
 
-        $board = Board::create($validated);
+    // 1️⃣ Create the board first
+    $board = Board::create([
+        'user_id' => $validated['user_id'],
+        'title' => $validated['title'],
+        'description' => $validated['description'],
+        'created_by_ai' => $validated['created_by_ai'] ?? false,
+        'metadata' => $validated['metadata'] ?? [],
+    ]);
 
-        
-      return response()->json(['board' => $board]);
+    // 2️⃣ If AI is requested and instruction exists
+    if ($board->created_by_ai && !empty($board->metadata['instruction'])) {
+        $instruction = $board->metadata['instruction'];
+
+        // Call AI to generate projects and tasks
+        $aiProjects = $openAI->generateProjectsAndTasks($instruction, 3, 5);
+
+        $generatedProjects = [];
+
+        foreach ($aiProjects as $projData) {
+            $project = $board->projects()->create([
+                'user_id' => Auth::id(),
+                'name' => $projData['project'] ?? 'Untitled Project',
+                'description' => $projData['description'] ?? null,
+            ]);
+
+            if (!empty($projData['tasks'])) {
+                foreach ($projData['tasks'] as $task) {
+                    $project->tasks()->create([
+                        'user_id' => Auth::id(),
+                        'title' => $task['title'] ?? 'Untitled Task',
+                        'description' => $task['description'] ?? null,
+                    ]);
+                }
+            }
+
+            $generatedProjects[] = $project->load('tasks');
+        }
+
+        // 3️⃣ Store generated projects in metadata
+       $metadata = $board->metadata; // get the array
+        $metadata['generated_projects'] = collect($generatedProjects)->map(function($proj) {
+            return [
+                'id' => $proj->id,
+                'name' => $proj->name,
+                'description' => $proj->description,
+                'tasks' => $proj->tasks->map(fn($t) => [
+                    'id' => $t->id,
+                    'title' => $t->title,
+                    'description' => $t->description,
+                ])->toArray(),
+            ];
+        })->toArray();
+
+        $board->metadata = $metadata; // assign back
+        $board->save();
+
+        \Log::info('AI projects generated', ['instruction' => $instruction, 'projects' => $aiProjects]);
+
     }
+
+    // 4️⃣ Return the board fully loaded
+    return response()->json(['board' => $board->load('projects.tasks')]);
+}
+
 
     /**
      * Display the specified resource.

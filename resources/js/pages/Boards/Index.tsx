@@ -13,10 +13,13 @@ export default function BoardIndex({ boards: initialBoards }: Props) {
   const [boards, setBoards] = useState(initialBoards);
   const [addBoard, setAddBoard] = useState(false);
   const [openEditBoard, setOpenEditBoard] = useState(false);
+  const [isChecked, setisCheck] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [newBoard, setNewBoard] = useState({
     title: "",
     description: "",
-    created_by_ai: false,
+    created_by_ai: isChecked,
+    instruction: "",
   });
 
 
@@ -60,29 +63,28 @@ export default function BoardIndex({ boards: initialBoards }: Props) {
 };
 
 
- const handleAddBoard = () => {
-  if (!newBoard.title.trim()) return;
-  router.post(
-    route("boards.store"),
-    {
+  const handleAddBoard = () => {
+    if (!newBoard.title.trim()) return;
+
+    setLoading(true);
+
+    const metadataPayload = isChecked ? { instruction: newBoard.instruction } : {};
+
+    router.post(route("boards.store"), {
       title: newBoard.title,
       description: newBoard.description,
-      created_by_ai: false,
-    },
-    {
-      onSuccess: (page) => {
-        const flash = page.props.flash as { newBoard?: Boards };
-
-        if (flash && flash.newBoard) {
-          setBoards((prev) => [...prev, flash.newBoard]);
-        }
-        setNewBoard({ title: "", description: "", created_by_ai: false });
+      created_by_ai: isChecked,
+      metadata: metadataPayload,
+    }, {
+      onSuccess: (response) => {
+        setBoards((prev) => [...prev, response.board]);
+        setNewBoard({ title: "", description: "", created_by_ai: false, instruction: "" });
+        setisCheck(false);
         setAddBoard(false);
       },
-    }
-  );
-};
-
+      onFinish: () => setLoading(false),
+    });
+  };
 
   return (
     <AppLayout>
@@ -140,7 +142,7 @@ export default function BoardIndex({ boards: initialBoards }: Props) {
 
   {/* Modal For Editing Board */}
 
-  {openEditBoard && (
+      {openEditBoard && (
   <div
     className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/85 backdrop-blur-xl"
     onClick={() => setOpenEditBoard(false)}
@@ -207,6 +209,25 @@ export default function BoardIndex({ boards: initialBoards }: Props) {
               placeholder="Description (optional)"
               className="w-full rounded border px-2 py-1 text-sm"
             />
+      <div>
+          <input
+              type="checkbox"
+              checked={isChecked}
+              onChange={(e) => setisCheck(e.target.checked)}
+            />
+            <label className="text-sm ml-2">Create with AI?</label>
+      </div>
+            {isChecked && (
+              <input
+                type="text"
+                value={newBoard.instruction}
+                onChange={(e) =>
+                  setNewBoard({ ...newBoard, instruction: e.target.value })
+                }
+                placeholder="Add instruction e.g. 'I will create a user login page'"
+                className="w-full rounded border px-2 py-1 text-sm"
+              />
+            )}
 
             <div className="flex gap-3 w-full justify-end">
               <Button
@@ -215,7 +236,10 @@ export default function BoardIndex({ boards: initialBoards }: Props) {
               >
                 Cancel
               </Button>
-              <Button onClick={handleAddBoard}>Create Board</Button>
+              <Button onClick={handleAddBoard} disabled={loading} className={loading ? 'opacity-50' : ''}>
+                {loading ? 'Creating...' : 'Create Board'}
+              </Button>
+
             </div>
           </div>
         </div>
