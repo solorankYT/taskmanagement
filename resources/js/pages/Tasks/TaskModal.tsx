@@ -1,22 +1,24 @@
 import { Button } from "@headlessui/react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { set } from "date-fns";
 import { TrashIcon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { router } from "@inertiajs/react";
-import { Checkbox } from "@radix-ui/react-checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 interface TaskModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  task: { id: number; title: string, description: string, due_date: string} | null;
-  onSave: (id: number, title: string, description: string, due_date: string) => void;
+  task: { id: number; title: string, description: string, due_date: string, priority: number} | null;
+  onSave: (id: number, title: string, description: string, due_date: string, priority: number) => void;
 }
 
 export default function TaskModal({ open, onOpenChange, task, onSave }: TaskModalProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
+  const [priority, setPriority] = useState("0");
 
   const handleDelete = (taskId: number) => {
     if (!confirm("Are you sure you want to delete this task?")) return;
@@ -28,20 +30,20 @@ export default function TaskModal({ open, onOpenChange, task, onSave }: TaskModa
     });
   };
 
+        useEffect(() => {
+          setTitle(task?.title || "");
+          setDescription(task?.description || "");
+          setDueDate(task?.due_date || "");
+          setPriority(task?.priority?.toString() || "0");
+        }, [task]);
 
-  useEffect(() => {
-    setTitle(task?.title || "");
-    setDescription(task?.description || "");
-    setDueDate(task?.due_date || "");
-  }, [task]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (task) {
-      onSave(task.id, title, description, dueDate);
-      onOpenChange(false);
-    }
-  };
+        const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (task) {
+          onSave(task.id, title, description, dueDate, parseInt(priority));
+          onOpenChange(false);
+        }
+    };
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -75,9 +77,30 @@ export default function TaskModal({ open, onOpenChange, task, onSave }: TaskModa
                 onChange={(e) => setDescription(e.target.value)}
             />
 
+           <label className="block text-sm font-medium mb-1">Priority</label>
+         <RadioGroup
+            value={priority.toString()}
+            onValueChange={(v) => setPriority(v)}
+            className="flex gap-4 p-3"
+          >
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="0" id="low" />
+              <Label htmlFor="low" className="text-green-500">Low</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="1" id="medium" />
+              <Label htmlFor="medium" className="text-yellow-500">Medium</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="2" id="high" />
+              <Label htmlFor="high" className="text-red-500">High</Label>
+            </div>
+          </RadioGroup>
+
             <label htmlFor="due_date" className="block text-sm font-medium  mb-1">
                 Due Date
             </label>
+            
             <input
                 type="date"
                 id="due_date"

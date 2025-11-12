@@ -31,22 +31,22 @@ export default function TaskIndex({boardId, projects: initialProjects }: Props) 
   const [newProjectName, setNewProjectName] = useState("");
   const [loading, setLoading] = useState(false);
   const [taskModalOpen, setTaskModalOpen] = useState(false);
-  const [selectedTask, setSelectedTask] = useState<{ id: number; title: string; description: string, due_date: string } | null>(null);
+  const [selectedTask, setSelectedTask] = useState<{ id: number; title: string; description: string, due_date: string, priority: 0 | 1 | 2 } | null>(null);
 
-const handleEditTask = (task: { id: number; title: string; description: string; due_date: string }) => {
+const handleEditTask = (task: { id: number; title: string; description: string; due_date: string, priority: 0 | 1 | 2}) => {
   setSelectedTask(task);
   setTaskModalOpen(true);
 };
 
-const handleSaveTask = (taskId: number, newTitle: string, newDescription: string, newdueDate: string) => {
-  router.put(route("tasks.update", taskId), { title: newTitle, description: newDescription, due_date: newdueDate}, {
+const handleSaveTask = (taskId: number, newTitle: string, newDescription: string, newdueDate: string, newPriority: 0 | 1 | 2) => {
+  router.put(route("tasks.update", taskId), { title: newTitle, description: newDescription, due_date: newdueDate, priority: newPriority}, {
     preserveScroll: true,
     onSuccess: () => {
       setProjects((prev) =>
         prev.map((proj) => ({
           ...proj,
           tasks: proj.tasks?.map((t) =>
-            t.id === taskId ? { ...t, title: newTitle, description: newDescription, due_date: newdueDate } : t
+            t.id === taskId ? { ...t, title: newTitle, description: newDescription, due_date: newdueDate, priority: newPriority} : t
           ),
         }))
       );
@@ -112,53 +112,52 @@ const handleDragEnd = (result: DropResult) => {
   }
 };
 
-  const handleAddTask = (projectId: number) => {
-    if (!newTaskTitle.trim()) return;
-    router.post(
-      route("tasks.store"),
-      {
-        title: newTaskTitle,
-        project_id: projectId,
-        priority: 1,
-      },
-      {
+      const handleAddTask = (projectId: number) => {
+        if (!newTaskTitle.trim()) return;
+        router.post(
+          route("tasks.store"),
+          {
+            title: newTaskTitle,
+            project_id: projectId,
+          },
+          {
+            onSuccess: () => {
+              setNewTaskTitle("");
+              setAddingTaskFor(null);
+            },
+          }
+        );
+      };
+
+      const handleDeleteProject = (projectId: number) => {
+      if (!confirm("Are you sure you want to delete this project?")) return;
+
+      router.delete(route("projects.destroy", projectId), {
+        preserveScroll: true,
         onSuccess: () => {
-          setNewTaskTitle("");
-          setAddingTaskFor(null);
+          setProjects((prev) => prev.filter((p) => p.id !== projectId));
         },
-      }
-    );
-  };
-
-  const handleDeleteProject = (projectId: number) => {
-  if (!confirm("Are you sure you want to delete this project?")) return;
-
-  router.delete(route("projects.destroy", projectId), {
-    preserveScroll: true,
-    onSuccess: () => {
-      setProjects((prev) => prev.filter((p) => p.id !== projectId));
-    },
-  });
-};
+      });
+    };
 
 
-const handleAddProject = () => {
-  if (!newProjectName.trim()) return;
-  setLoading(true);
+    const handleAddProject = () => {
+      if (!newProjectName.trim()) return;
+      setLoading(true);
 
-  router.post(
-    route("projects.store", boardId),
-    { name: newProjectName },
-    {
-      onSuccess: () => {
-        setNewProjectName("");
-        setAddingProject(false);
-        setLoading(false);
-      },
-      onError: () => setLoading(false),
-    }
-  );
-};
+      router.post(
+        route("projects.store", boardId),
+        { name: newProjectName },
+        {
+          onSuccess: () => {
+            setNewProjectName("");
+            setAddingProject(false);
+            setLoading(false);
+          },
+          onError: () => setLoading(false),
+        }
+      );
+    };
 
 
 
