@@ -76,8 +76,8 @@ export default function BoardIndex({ boards: initialBoards }: Props) {
       created_by_ai: isChecked,
       metadata: metadataPayload,
     }, {
-      onSuccess: (response) => {
-        setBoards((prev) => [...prev, response.board]);
+      onSuccess: () => {
+        setBoards((prev) => [...prev]);
         setNewBoard({ title: "", description: "", created_by_ai: false, instruction: "" });
         setisCheck(false);
         setAddBoard(false);

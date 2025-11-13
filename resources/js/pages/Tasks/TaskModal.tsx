@@ -3,7 +3,6 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { TrashIcon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { router } from "@inertiajs/react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 
@@ -100,7 +99,7 @@ export default function TaskModal({ open, onOpenChange, task, onSave }: TaskModa
             <label htmlFor="due_date" className="block text-sm font-medium  mb-1">
                 Due Date
             </label>
-            
+
             <input
                 type="date"
                 id="due_date"

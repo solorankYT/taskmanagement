@@ -14,7 +14,6 @@ export default function TasksPage({board, projects }: TasksPageProps) {
       <Head title="Tasks" />
       <div className="p-4">
         <TaskIndex boardId={board.id} projects={projects} />
-
       </div>
     </AppLayout>
   );

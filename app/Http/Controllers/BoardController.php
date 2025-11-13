@@ -93,12 +93,8 @@ public function store(Request $request, OpenAIService $openAI)
         $board->metadata = $metadata; // assign back
         $board->save();
 
-        \Log::info('AI projects generated', ['instruction' => $instruction, 'projects' => $aiProjects]);
-
     }
-
-    // 4️⃣ Return the board fully loaded
-    return response()->json(['board' => $board->load('projects.tasks')]);
+    return redirect()->route('boards.index')->with('success', 'Board created successfully.');
 }
 
 
