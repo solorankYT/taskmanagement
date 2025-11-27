@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use Inertia\Inertia;
+use App\Models\Board;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +21,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Share boards with all Inertia pages
+        Inertia::share([
+            'boards' => function () {
+                return auth()->user()->boards;
+            },
+        ]);
     }
 }
