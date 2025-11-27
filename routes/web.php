@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AnalyticsController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\DashboardController;
@@ -37,6 +38,9 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/boards/{board}',[BoardController::class, 'update'])-> name('boards.update');
     Route::delete('/boards/{board}', [BoardController::class, 'destroy']) -> name('boards.destroy');
 
+
+    //Analytics
+    Route::get('/analytics', [AnalyticsController::class, 'index']) -> name('analytics.index');
 
     Route::get('/test-openai', function () {
     try {
